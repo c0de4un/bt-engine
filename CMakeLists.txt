@@ -68,6 +68,7 @@ include ( "cmake/options.cmake" )
 set ( BT_HEADERS
 	# CONFIGS
 	"config/bt_api.hpp"
+	"config/bt_log.hpp"
 	# ENGINE
 	"bt.hpp" )
 
@@ -94,6 +95,7 @@ set ( BT_SOURCES
 # ECS
 
 # CORE
+include ("core/core.cmake")
 
 # RENDER
 

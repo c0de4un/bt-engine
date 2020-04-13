@@ -43,14 +43,64 @@
 // CONFIGS
 // ===========================================================
 
-// Library Build-Method (must be added with any class/struct name, any global static methods/fields).
+// API
 #if defined( BT_SHARED ) // SHARED
+
+#if defined( BT_EXPORT ) // EXPORT
+#ifndef btengine_EXPORT
+#define btengine_EXPORT __declspec( dllexport )
+#endif
 #define BT_API btengine_EXPORT
+
+#else // IMPORT
+
+#ifndef btengine_IMPORT
+#define __declspec( dllimport )
+#endif
+#define BT_API btengine_IMPORT
+#endif
+
 #elif defined( BT_STATIC ) // STATIC
+
+#ifndef btengine_STATIC
+#define btengine_STATIC
+#endif
 #define BT_API btengine_STATIC
+
 #else // Headers-Only
 #define BT_API
 #endif
+// API
+
+// DEBUG
+#if defined( DEBUG )
+#define BT_DEBUG 1
+#endif
+// DEBUG
+
+// NO_EXCEPT
+#if defined( BT_DEBUG )
+#define BT_NOEXCEPT noexcept
+#else
+#define BT_NOEXCEPT
+#endif
+// NO_EXCEPT
+
+// INTERFACE
+#define BT_INTERFACE
+// INTERFACE
+
+// CLASS
+#define BT_CLASS
+// CLASS
+
+// STRUCT
+#define BT_STRUCT
+// STRUCT
+
+// ENUM
+#define BT_ENUM
+// ENUM
 
 // -----------------------------------------------------------
 
