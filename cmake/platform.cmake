@@ -43,7 +43,7 @@ if ( NOT DEFINED PLATFORM_DIR )
 	else ( ANDROID ) # ?
 	
 		# ERROR
-		message ( SEND_ERROR "${PROJECT_NAME} - unknown platform ! Configuration required." )
+		message ( FATAL_ERROR "${PROJECT_NAME} - unknown platform ! Configuration required." )
 	
 		# Set Directory Prefix
 		set ( PLATFORM_DIR "unix" )
@@ -65,5 +65,7 @@ if ( NOT DEFINED PLATFORM_DIR )
 		set ( BUILD_TYPE_DIR "release" )
 	
 	endif ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+
+	set ( PROJECT_BIN_OUTPUT_DIR "${PROJECT_BIN_DIR}${PLATFORM_DIR}" )
 
 endif ( NOT DEFINED PLATFORM_DIR )
