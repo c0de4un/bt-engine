@@ -80,9 +80,9 @@
 
 // NO_EXCEPT
 #if defined( BT_DEBUG )
-#define BT_NOEXCEPT noexcept
-#else
 #define BT_NOEXCEPT
+#else
+#define BT_NOEXCEPT noexcept
 #endif
 // NO_EXCEPT
 

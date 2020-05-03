@@ -30,57 +30,45 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-// -----------------------------------------------------------
-
-// ===========================================================
-// INCLUDES
-// ===========================================================
-
-// HEADER
-#ifndef BT_HPP
-#include "bt.hpp"
-#endif // !BT_HPP
-
-// ===========================================================
-// btEngine
-// ===========================================================
-
-namespace bt
-{
-
-	// -----------------------------------------------------------
-
-	// ===========================================================
-	// CONSTRUCTOR & DESTRUCTOR
-	// ===========================================================
-
-	BTEngine::BTEngine()
-	{
-	}
-
-	BTEngine::~BTEngine()
-	{
-	}
-
-	// ===========================================================
-	// GETTERS & SETTERS
-	// ===========================================================
-
-	// ===========================================================
-	// METHODS
-	// ===========================================================
-
-	bool BTEngine::Initialize()
-	{
-		return true;
-	}
-
-	void BTEngine::Terminate()
-	{
-	}
-
-	// -----------------------------------------------------------
-
-} /// bt
+#ifndef BT_CFG_LOCK_HPP
+#define BT_CFG_LOCK_HPP
 
 // -----------------------------------------------------------
+
+// ===========================================================
+// CONFIGS
+// ===========================================================
+
+// PLATFORM
+#if defined( BT_ANDROID ) // ANDROID
+
+// Include bt::android::AndroidSpinLock
+#ifndef BT_ANDROID_SPIN_LOCK_HPP
+#include "../android/utils/async/AndroidSpinLock.hpp"
+#endif // !BT_ANDROID_SPIN_LOCK_HPP
+using bt_spin_lock_t = bt::android::AndroidSpinLock;
+
+#elif defined( BT_LINUX ) // LINUX
+
+// Include bt::linux::LinuxSpinLock
+#ifndef BT_LINUX_SPIN_LOCK_HPP
+#include "../linux/utils/async/LinuxSpinLock.hpp"
+#endif // !BT_LINUX_SPIN_LOCK_HPP
+using bt_spin_lock_t = bt::linux::LinuxSpinLock;
+
+#elif defined( BT_WINDOWS ) // WINDOWS
+
+// Include bt::win::WinSpinLock
+#ifndef BT_WIN_SPIN_LOCK_HPP
+#include "../windows/utils/async/WinSpinLock.hpp"
+#endif // !BT_WIN_SPIN_LOCK_HPP
+using bt_spin_lock_t = bt::win::WinSpinLock;
+
+#else
+#error "bt_lock.hpp - platform not detected, configuration required."
+#endif
+// PLATFORM
+
+// -----------------------------------------------------------
+
+#endif // !BT_CFG_LOCK_HPP

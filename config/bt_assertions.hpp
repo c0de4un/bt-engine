@@ -30,27 +30,26 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_STRING_HPP
-#define BT_CFG_STRING_HPP
+#ifndef BT_CFG_ASSERTIONS_HPP
+#define BT_CFG_ASSERTIONS_HPP
 
 // -----------------------------------------------------------
-
-// ===========================================================
-// INCLUDES
-// ===========================================================
-
-// Include bt::core::String
-#ifndef BT_CORE_STRING_HPP
-#include "../core/utils/text/String.hpp"
-#endif // !BT_CORE_STRING_HPP
 
 // ===========================================================
 // CONFIGS
 // ===========================================================
 
-using btString = bt::core::bt::String;
-using btEncoding = bt::core::Encoding;
+#if defined( BT_ANDROID ) || defined( BT_LINUX ) || defined( BT_WINDOWS )
+
+// Include C++ assert
+#include <cassert>
+
+#define bt_assert assert
+
+#else
+#error "bt_assertions.hpp - platform not detected, configuration required."
+#endif
 
 // -----------------------------------------------------------
 
-#endif // !BT_CFG_STRING_HPP
+#endif // !BT_CFG_ASSERTIONS_HPP

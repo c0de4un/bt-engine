@@ -30,43 +30,14 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_MEMORY_HPP
-#define BT_CFG_MEMORY_HPP
+#ifndef BT_ECS_I_SYSTEM_HXX
+#define BT_ECS_I_SYSTEM_HXX
 
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
-
-// Include btEngine API
-#ifndef BT_CFG_API_HPP
-#include "bt_api.hpp"
-#endif // !BT_CFG_API_HPP
-
-// ===========================================================
-// CONFIGS
-// ===========================================================
-
-// PLATFORM
-#if defined( BT_ANDROID ) || defined( BT_LINUX ) || defined( BT_WINDOWS )
-
-// Include C++ memory
-#include <memory>
-
-template <typename T>
-using bt_sptr = std::shared_ptr<T>;
-
-template <typename T>
-using bt_wptr = std::weak_ptr<T>;
-
-template <typename T>
-using bt_uptr = std::unique_ptr<T>;
-
-#else
-#error "bt_memory.hpp - platform not detected, configuration required."
-#endif
-// PLATFORM
 
 // ===========================================================
 // TYPES
@@ -75,63 +46,96 @@ using bt_uptr = std::unique_ptr<T>;
 namespace bt
 {
 
-	// -----------------------------------------------------------
-
-	/**
-	 * @brief
-	 * Memory - utility-class to handle memory-related logic (pointers, allocators).
-	 * 
-	 * @version 0.1
-	**/
-	class BT_API Memory
+	namespace ecs
 	{
 
 		// -----------------------------------------------------------
 
-		// ===========================================================
-		// META
-		// ===========================================================
-
-		BT_CLASS
-
-		// -----------------------------------------------------------
-
-	public:
-
-		// -----------------------------------------------------------
-
-		// ===========================================================
-		// METHODS
-		// ===========================================================
-
 		/**
 		 * @brief
-		 * Make shared pointer for new object.
+		 * ISystem - System interface.
 		 * 
-		 * @thread_safety - not required.
-		 * @param pArgs - constructor-arguments.
-		 * @return - shared-pointer.
-		 * @throws - can throw exception.
+		 * @version 0.1
+		 * @authors Denis Z. (code4un@yandex.ru)
 		**/
-		template <typename T, typename... _Types>
-		static bt_sptr<T> MakeShared( _Types&& ... _Args )
-		{ return std::make_shared<T>( std::forward<_Types>(_Args)... ); }
+		class ISystem
+		{
+
+			// -----------------------------------------------------------
+
+			// ===========================================================
+			// META
+			// ===========================================================
+
+			// -----------------------------------------------------------
+
+		public:
+
+			// -----------------------------------------------------------
+
+			// ===========================================================
+			// DESTRUCTOR
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * ISystem destructor.
+			 * 
+			 * @throws - no exceptions.
+			**/
+			virtual ~ISystem()
+			{
+			}
+
+			// ===========================================================
+			// GETTERS & SETTERS
+			// ===========================================================
+
+			// ===========================================================
+			// METHODS
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * Start/Resume System.
+			 * 
+			 * @thread_safety - thread-locks used.
+			 * @return - 'true' if OK, 'false' if error.
+			 * @throws - can throw exception.
+			**/
+			virtual bool StartSystem() = 0;
+
+			/**
+			 * @brief
+			 * Pause System.
+			 *
+			 * @thread_safety - thread-locks used.
+			 * @throws - can throw exception.
+			**/
+			virtual void PauseSystem() = 0;
+
+			/**
+			 * @brief
+			 * Stop System.
+			 * Unlikely #Pause, release (unload) all related resources.
+			 * 
+			 * @thread_safety - thread-locks used.
+			 * @throws - no exceptions.
+			**/
+			virtual void StopSystem() = 0;
+
+			// -----------------------------------------------------------
+
+		}; /// bt::ecs::ISystem
 
 		// -----------------------------------------------------------
 
-	}; /// bt::memory
-
-	// -----------------------------------------------------------
+	} /// bt::ecs
 
 } /// bt
-using btMemory = bt::Memory;
-
-// ===========================================================
-// METHODS
-// ===========================================================
-
-#define New btMemory::MakeShared
+using ecs_ISystem = bt::ecs::ISystem;
+#define BT_ECS_I_SYSTEM_DECL
 
 // -----------------------------------------------------------
 
-#endif // !BT_CFG_MEMORY_HPP
+#endif // !BT_ECS_I_SYSTEM_HXX

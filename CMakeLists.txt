@@ -67,10 +67,20 @@ include ( "cmake/options.cmake" )
 
 set ( BT_HEADERS
 	# CONFIGS
+	"config/bt_fwd.hpp"
 	"config/bt_api.hpp"
-	"config/bt_log.hpp"
-	# ENGINE
-	"bt.hpp" )
+	"config/bt_assertions.hpp"
+	"config/bt_atomic.hpp"
+	"config/bt_ecs.hpp"
+	"config/bt_input_stream.hpp"
+	"config/bt_output_stream.hpp"
+	"config/bt_memory.hpp"
+	"config/bt_mutex.hpp"
+	"config/bt_lock.hpp"
+	"config/bt_numeric.hpp"
+	"config/bt_string.hpp"
+	"config/bt_thread.hpp"
+	"config/bt_log.hpp" )
 
 # Headers for SHARED Library.
 set ( BT_PUBLIC_HEADERS "bt.hpp" )
@@ -82,7 +92,7 @@ set ( BT_PUBLIC_HEADERS "bt.hpp" )
 set ( BT_SOURCES
 	# CONFIGS
 	# ENGINE
-	"bt.cpp" )
+	"" )
 
 # =================================================================================
 # MODULES
@@ -93,6 +103,7 @@ set ( BT_SOURCES
 # MUTEX
 
 # ECS
+include ( "ecs/ecs.cmake" )
 
 # CORE
 include ("core/core.cmake")
@@ -104,6 +115,9 @@ include ("core/core.cmake")
 # LINUX
 
 # WINDOWS
+if ( WIN32 OR WIN64 )
+	include ( "windows/windows.cmake" )
+endif ( WIN32 OR WIN64 )
 
 # =================================================================================
 # BUILD

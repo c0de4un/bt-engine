@@ -6,9 +6,9 @@
 * License: see LICENSE.txt
 *
 * Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
+* modification, are permitted provided that the follolinuxg conditions are met:
 * 1. Redistributions of source code must retain the above copyright notice,
-* this list of conditions and the following disclaimer.
+* this list of conditions and the follolinuxg disclaimer.
 * 2. Redistributions in binary form must display the names 'Denis Zyamaev' and
 * in the credits of the application, if such credits exist.
 * The authors of this work must be notified via email (code4un@yandex.ru) in
@@ -30,139 +30,86 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_HPP
-#define BT_HPP
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// bt API
-#ifndef BT_CFG_API_HPP
-#include "config/bt_api.hpp"
-#endif // !BT_CFG_API_HPP
+// HEADER
+#ifndef BT_LINUX_MUTEX_HPP
+#include "LinuxMutex.hpp"
+#endif // !BT_LINUX_MUTEX_HPP
 
 // ===========================================================
-// TYPES
+// bt::linux::LinuxMutex
 // ===========================================================
 
 namespace bt
 {
 
-	// -----------------------------------------------------------
-
-	/**
-	 * @brief
-	 * BTEngine - main engine class. Handles initialization & termination.
-	 * 
-	 * @version 0.1
-	 * @authors Denis Z. (code4un@yandex.ru)
-	**/
-	class BT_API BTEngine final
+	namespace linux
 	{
 
 		// -----------------------------------------------------------
 
 		// ===========================================================
-		// META
-		// ===========================================================
-
-		// -----------------------------------------------------------
-
-	private:
-
-		// -----------------------------------------------------------
-
-		BTEngine(const BTEngine&) = delete;
-		BTEngine& operator=(const BTEngine&) = delete;
-		BTEngine(BTEngine &&) = delete;
-		BTEngine& operator=(BTEngine &&) = delete;
-
-		// ===========================================================
-		// CONSTANTS
-		// ===========================================================
-
-		// ===========================================================
-		// FIELDS
-		// ===========================================================
-
-		// ===========================================================
 		// CONSTRUCTOR
 		// ===========================================================
 
-		/**
-		 * @brief
-		 * BTEngine default constructor.
-		 * 
-		 * @throws - can throw exception.
-		**/
-		explicit BTEngine();
-
-		// ===========================================================
-		// GETTERS & SETTERS
-		// ===========================================================
-
-		// ===========================================================
-		// METHODS
-		// ===========================================================
-
-		// -----------------------------------------------------------
-
-	public:
-
-		// -----------------------------------------------------------
+		LinuxMutex::LinuxMutex()
+			: Mutex(),
+			mMutex()
+		{
+			pthread_mutex_init(&mMutex, nullptr);
+		}
 
 		// ===========================================================
 		// DESTRUCTOR
 		// ===========================================================
 
-		/**
-		 * @brief
-		 * BTEngine destructor.
-		 * 
-		 * @throws - can throw exception.
-		**/
-		virtual ~BTEngine();
+		LinuxMutex::~LinuxMutex() BT_NOEXCEPT
+		{
+			pthread_mutex_destroy(&mMutex);
+		}
 
 		// ===========================================================
-		// GETTERS & SETTERS
+		// bt::core::IMutex
 		// ===========================================================
+
+		void* LinuxMutex::native_handle() BT_NOEXCEPT
+		{
+			return &mMutex;
+		}
 
 		// ===========================================================
 		// METHODS
 		// ===========================================================
 
-		/**
-		 * @brief
-		 * Initialize btEngine.
-		 * 
-		 * @thread_safety - main thread only.
-		 * @return - 'true' if OK, 'false' if failed.
-		 * @throws - can throw exception.
-		**/
-		static BT_API bool Initialize();
+		bool LinuxMutex::try_lock() BT_NOEXCEPT
+		{
+			if ( mLockedFlag )
+				return false;
 
-		/**
-		 * @brief
-		 * Terminate btEngine.
-		 * 
-		 * @thread_safety - main thread only.
-		 * @throws - can throw exception.
-		**/
-		static BT_API void Terminate();
+			LinuxMutex::lock();
+		}
+
+		void LinuxMutex::lock()
+		{
+			mLockedFlag = true;
+			pthread_mutex_lock(&mMutex);
+		}
+
+		void LinuxMutex::unlock() BT_NOEXCEPT
+		{
+			mLockedFlag = false;
+			pthread_mutex_unlock(&mMutex);
+		}
 
 		// -----------------------------------------------------------
 
-	}; /// bt::BTEngine
-
-	// -----------------------------------------------------------
+	} /// bt::linux
 
 } /// bt
-using btEngine = bt::BTEngine;
-#define BT_DECL
 
 // -----------------------------------------------------------
-
-#endif // !BT_HPP

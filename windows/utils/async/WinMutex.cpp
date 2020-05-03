@@ -30,27 +30,84 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_STRING_HPP
-#define BT_CFG_STRING_HPP
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// Include bt::core::String
-#ifndef BT_CORE_STRING_HPP
-#include "../core/utils/text/String.hpp"
-#endif // !BT_CORE_STRING_HPP
+// HEADER
+#ifndef BT_WIN_MUTEX_HPP
+#include "WinMutex.hpp"
+#endif // !BT_WIN_MUTEX_HPP
 
 // ===========================================================
-// CONFIGS
+// bt::win::WinMutex
 // ===========================================================
 
-using btString = bt::core::bt::String;
-using btEncoding = bt::core::Encoding;
+namespace bt
+{
+
+	namespace win
+	{
+
+		// -----------------------------------------------------------
+
+		// ===========================================================
+		// CONSTRUCTOR
+		// ===========================================================
+
+		WinMutex::WinMutex()
+			: Mutex(),
+			mMutex()
+		{
+			InitializeCriticalSection(&mMutex);
+		}
+
+		// ===========================================================
+		// DESTRUCTOR
+		// ===========================================================
+
+		WinMutex::~WinMutex() BT_NOEXCEPT
+		{
+			DeleteCriticalSection(&mMutex);
+		}
+
+		// ===========================================================
+		// bt::core::IMutex
+		// ===========================================================
+
+		void* WinMutex::native_handle() BT_NOEXCEPT
+		{ return &mMutex; }
+
+		// ===========================================================
+		// METHODS
+		// ===========================================================
+
+		bool WinMutex::try_lock() BT_NOEXCEPT
+		{
+			if ( mLockedFlag )
+				return false;
+
+			WinMutex::lock();
+		}
+
+		void WinMutex::lock()
+		{
+			mLockedFlag = true;
+			EnterCriticalSection(&mMutex);
+		}
+
+		void WinMutex::unlock() BT_NOEXCEPT
+		{
+			mLockedFlag = false;
+			LeaveCriticalSection(&mMutex);
+		}
+
+		// -----------------------------------------------------------
+
+	} /// bt::win
+
+} /// bt
 
 // -----------------------------------------------------------
-
-#endif // !BT_CFG_STRING_HPP

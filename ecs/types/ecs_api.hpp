@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_STRING_HPP
-#define BT_CFG_STRING_HPP
+#ifndef BT_ECS_API_HPP
+#define BT_ECS_API_HPP
 
 // -----------------------------------------------------------
 
@@ -39,18 +39,49 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::core::String
-#ifndef BT_CORE_STRING_HPP
-#include "../core/utils/text/String.hpp"
-#endif // !BT_CORE_STRING_HPP
+// Include beEngine.API
+#ifndef BT_CFG_API_HPP
+#include "../../config/bt_api.hpp"
+#endif // !BT_CFG_API_HPP
 
 // ===========================================================
 // CONFIGS
 // ===========================================================
 
-using btString = bt::core::bt::String;
-using btEncoding = bt::core::Encoding;
+// API
+#define ECS_API BT_API
+// API
+
+// DEBUG
+#if defined( BT_DEBUG ) || defined( DEBUG )
+#define ECS_DEBUG 1
+#endif
+// DEBUG
+
+// NO_EXCEPT
+#ifdef ECS_DEBUG
+#define ECS_NOEXCEPT
+#else
+#define ECS_NOEXCEPT noexcept
+#endif
+// NO_EXCEPT
+
+// INTERFACE
+#define ECS_INTERFACE
+// INTERFACE
+
+// CLASS
+#define ECS_CLASS
+// CLASS
+
+// STRUCT
+#define ECS_STRUCT
+// STRUCT
+
+// ENUM
+#define ECS_ENUM
+// ENUM
 
 // -----------------------------------------------------------
 
-#endif // !BT_CFG_STRING_HPP
+#endif // !BT_ECS_API_HPP

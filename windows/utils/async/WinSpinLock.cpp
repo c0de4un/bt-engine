@@ -30,108 +30,126 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_MEMORY_HPP
-#define BT_CFG_MEMORY_HPP
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// Include btEngine API
-#ifndef BT_CFG_API_HPP
-#include "bt_api.hpp"
-#endif // !BT_CFG_API_HPP
+// HEADER
+#ifndef BT_WIN_SPIN_LOCK_HPP
+#include "WinSpinLock.hpp"
+#endif // !BT_WIN_SPIN_LOCK_HPP
 
-// ===========================================================
-// CONFIGS
-// ===========================================================
+// Include bt::core::IMutex
+#ifndef BT_CORE_I_MUTEX_HXX
+#include "../../../core/utils/async/IMutex.hxx"
+#endif // !BT_CORE_I_MUTEX_HXX
 
-// PLATFORM
-#if defined( BT_ANDROID ) || defined( BT_LINUX ) || defined( BT_WINDOWS )
+// DEBUG
+#if defined(DEBUG) || defined(BT_DEBUG)
 
-// Include C++ memory
-#include <memory>
+// Include bt::assert
+#ifndef BT_CFG_ASSERTIONS_HPP
+#include "../../../config/bt_assertions.hpp"
+#endif // !BT_CFG_ASSERTIONS_HPP
 
-template <typename T>
-using bt_sptr = std::shared_ptr<T>;
-
-template <typename T>
-using bt_wptr = std::weak_ptr<T>;
-
-template <typename T>
-using bt_uptr = std::unique_ptr<T>;
-
-#else
-#error "bt_memory.hpp - platform not detected, configuration required."
 #endif
-// PLATFORM
+// DEBUG
 
 // ===========================================================
-// TYPES
+// bt::win::WinSpinLock
 // ===========================================================
 
 namespace bt
 {
 
-	// -----------------------------------------------------------
-
-	/**
-	 * @brief
-	 * Memory - utility-class to handle memory-related logic (pointers, allocators).
-	 * 
-	 * @version 0.1
-	**/
-	class BT_API Memory
+	namespace win
 	{
 
 		// -----------------------------------------------------------
 
 		// ===========================================================
-		// META
+		// CONSTRUCTOR & DESTRUCTOR
 		// ===========================================================
 
-		BT_CLASS
-
-		// -----------------------------------------------------------
-
-	public:
-
-		// -----------------------------------------------------------
-
-		// ===========================================================
-		// METHODS
-		// ===========================================================
+		WinSpinLock::WinSpinLock(btIMutex* const pMutex, const bool defferLock)
+			: BaseLock( pMutex, defferLock )
+		{
+		}
 
 		/**
 		 * @brief
-		 * Make shared pointer for new object.
-		 * 
-		 * @thread_safety - not required.
-		 * @param pArgs - constructor-arguments.
-		 * @return - shared-pointer.
-		 * @throws - can throw exception.
+		 * WinSpinLock destructor.
+		 *
+		 * @throws - no exceptions.
 		**/
-		template <typename T, typename... _Types>
-		static bt_sptr<T> MakeShared( _Types&& ... _Args )
-		{ return std::make_shared<T>( std::forward<_Types>(_Args)... ); }
+		WinSpinLock::~WinSpinLock() BT_NOEXCEPT
+		{
+		}
+
+		// ===========================================================
+		// GETTERS & SETTERS
+		// ===========================================================
+
+		bool WinSpinLock::isLocked() const BT_NOEXCEPT
+		{ return mMutex ? mMutex->isLocked() : false; }
+
+		// ===========================================================
+		// bt::core::ILock
+		// ===========================================================
+
+		bool WinSpinLock::try_lock(btIMutex* const pMutex) BT_NOEXCEPT
+		{
+
+#ifdef BT_DEBUG // DEBUG
+			bt_assert( (mMutex || pMutex) && "WinSpinLock::try_lock - null mutex !" );
+#endif // DEBUG
+
+			if ( mMutex )
+			{
+				mMutex->unlock();
+				mMutex = pMutex;
+			}
+
+			for ( unsigned char i = 0; i < SPIN_LIMIT; i++ )
+			{
+				if ( !mMutex->isLocked() )
+					break;
+			}
+			return mMutex->try_lock();
+		}
+
+		void WinSpinLock::lock(btIMutex* const pMutex)
+		{
+#ifdef BT_DEBUG // DEBUG
+			bt_assert( ( mMutex || pMutex ) && "WinSpinLock::lock - null mutex !" );
+#endif // DEBUG
+
+			if ( mMutex )
+			{
+				mMutex->unlock();
+				mMutex = pMutex;
+			}
+
+			for ( unsigned char i = 0; i < SPIN_LIMIT; i++ )
+			{
+				if ( !mMutex->isLocked() )
+					break;
+			}
+			mMutex->lock();
+		}
+
+		void WinSpinLock::unlock() BT_NOEXCEPT
+		{
+			if ( mMutex )
+				mMutex->unlock();
+		}
 
 		// -----------------------------------------------------------
 
-	}; /// bt::memory
-
-	// -----------------------------------------------------------
+	} /// bt::win
 
 } /// bt
-using btMemory = bt::Memory;
-
-// ===========================================================
-// METHODS
-// ===========================================================
-
-#define New btMemory::MakeShared
 
 // -----------------------------------------------------------
-
-#endif // !BT_CFG_MEMORY_HPP

@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_STRING_HPP
-#define BT_CFG_STRING_HPP
+#ifndef BT_ECS_MUTEX_HPP
+#define BT_ECS_MUTEX_HPP
 
 // -----------------------------------------------------------
 
@@ -39,18 +39,31 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::core::String
-#ifndef BT_CORE_STRING_HPP
-#include "../core/utils/text/String.hpp"
-#endif // !BT_CORE_STRING_HPP
+// Include btEgnine::Mutex
+#ifndef BT_CFG_MUTEX_HPP
+#include "../../config/bt_mutex.hpp"
+#endif // !BT_CFG_MUTEX_HPP
 
 // ===========================================================
-// CONFIGS
+// TYPES
 // ===========================================================
 
-using btString = bt::core::bt::String;
-using btEncoding = bt::core::Encoding;
+namespace bt
+{
+
+	namespace bt::ecs
+	{
+
+		// -----------------------------------------------------------
+
+		using bt_ecs_mutex_t = bt_mutex_t;
+
+		// -----------------------------------------------------------
+
+	} /// bt::ecs
+
+} /// bt
 
 // -----------------------------------------------------------
 
-#endif // !BT_CFG_STRING_HPP
+#endif // !BT_ECS_MUTEX_HPP

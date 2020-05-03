@@ -30,108 +30,136 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_MEMORY_HPP
-#define BT_CFG_MEMORY_HPP
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// Include btEngine API
-#ifndef BT_CFG_API_HPP
-#include "bt_api.hpp"
-#endif // !BT_CFG_API_HPP
+// HEADER
+#ifndef BT_WIN_LOG_HPP
+#include "WinLog.hpp"
+#endif // !BT_WIN_LOG_HPP
+
+// Include C++ I/O
+#include <iostream>
+
+// Windows API
+#include <Windows.h>
+
+// Include C++ string
+#include <string>
 
 // ===========================================================
-// CONFIGS
-// ===========================================================
-
-// PLATFORM
-#if defined( BT_ANDROID ) || defined( BT_LINUX ) || defined( BT_WINDOWS )
-
-// Include C++ memory
-#include <memory>
-
-template <typename T>
-using bt_sptr = std::shared_ptr<T>;
-
-template <typename T>
-using bt_wptr = std::weak_ptr<T>;
-
-template <typename T>
-using bt_uptr = std::unique_ptr<T>;
-
-#else
-#error "bt_memory.hpp - platform not detected, configuration required."
-#endif
-// PLATFORM
-
-// ===========================================================
-// TYPES
+// bt::win::WinLog
 // ===========================================================
 
 namespace bt
 {
 
-	// -----------------------------------------------------------
-
-	/**
-	 * @brief
-	 * Memory - utility-class to handle memory-related logic (pointers, allocators).
-	 * 
-	 * @version 0.1
-	**/
-	class BT_API Memory
+	namespace win
 	{
 
 		// -----------------------------------------------------------
 
 		// ===========================================================
-		// META
+		// CONSTRUCTOR & DESTRUCTOR
 		// ===========================================================
 
-		BT_CLASS
+		WinLog::WinLog()
+			: BaseLog(),
+			mOutBuf()
+		{
+			// UTF-8 Support by Default.
+			SetConsoleOutputCP(CP_UTF8);
+			setvbuf(stdout, nullptr, _IONBF, 0); // @see http://www.cplusplus.com/reference/cstdio/setvbuf/
+			std::cout.rdbuf(&mOutBuf);
+		}
+
+		WinLog::~WinLog()
+		{
+		}
+
+		// ===========================================================
+		// BaseLog
+		// ===========================================================
+
+		void WinLog::Info(const char* const pMsg)
+		{
+			std::string str = u8"INFO ";
+			str += pMsg;
+
+			std::cout << str << std::endl;
+			OutputDebugStringA( str.c_str() );
+		}
+
+		void WinLog::Info_W(const wchar_t* const pMsg)
+		{
+			std::wstring str = L"INFO ";
+			str += pMsg;
+
+			std::wcout << str << std::endl;
+			OutputDebugStringW(str.c_str());
+		}
+
+		void WinLog::Debug(const char* const pMsg)
+		{
+			std::string str = u8"DEBUG ";
+			str += pMsg;
+
+			std::cout << str << std::endl;
+			OutputDebugStringA(str.c_str());
+		}
+
+		void WinLog::Debug_W(const wchar_t* const pMsg)
+		{
+			std::wstring str = L"INFO ";
+			str += pMsg;
+
+			std::wcout << str << std::endl;
+			OutputDebugStringW(str.c_str());
+		}
+		
+		void WinLog::Warning(const char* const pMsg)
+		{
+			std::string str = u8"WARNING ";
+			str += pMsg;
+
+			std::cout << str << std::endl;
+			OutputDebugStringA(str.c_str());
+		}
+
+		void WinLog::Warning_W(const wchar_t* const pMsg)
+		{
+			std::wstring str = L"INFO ";
+			str += pMsg;
+
+			std::wcout << str << std::endl;
+			OutputDebugStringW(str.c_str());
+		}
+
+		void WinLog::Error(const char* const pMsg)
+		{
+			std::string str = u8"ERROR ";
+			str += pMsg;
+
+			std::cout << str << std::endl;
+			OutputDebugStringA(str.c_str());
+		}
+
+		void WinLog::Error_W(const wchar_t* const pMsg)
+		{
+			std::wstring str = L"INFO ";
+			str += pMsg;
+
+			std::wcout << str << std::endl;
+			OutputDebugStringW(str.c_str());
+		}
 
 		// -----------------------------------------------------------
 
-	public:
-
-		// -----------------------------------------------------------
-
-		// ===========================================================
-		// METHODS
-		// ===========================================================
-
-		/**
-		 * @brief
-		 * Make shared pointer for new object.
-		 * 
-		 * @thread_safety - not required.
-		 * @param pArgs - constructor-arguments.
-		 * @return - shared-pointer.
-		 * @throws - can throw exception.
-		**/
-		template <typename T, typename... _Types>
-		static bt_sptr<T> MakeShared( _Types&& ... _Args )
-		{ return std::make_shared<T>( std::forward<_Types>(_Args)... ); }
-
-		// -----------------------------------------------------------
-
-	}; /// bt::memory
-
-	// -----------------------------------------------------------
+	} /// bt::win
 
 } /// bt
-using btMemory = bt::Memory;
-
-// ===========================================================
-// METHODS
-// ===========================================================
-
-#define New btMemory::MakeShared
 
 // -----------------------------------------------------------
-
-#endif // !BT_CFG_MEMORY_HPP

@@ -39,26 +39,17 @@
 // INCLUDES
 // ===========================================================
 
-#ifndef BT_CFG_LOG_FWD
-
 // Include bt::core::Log
-
-#else
-#undef BT_CFG_LOG_FWD
-
-// ===========================================================
-// FORWARD-DECLARATIONS
-// ===========================================================
-
-// Forward-Declare bt::core::Log
-
-#endif
+#ifndef BT_CORE_LOG_HPP
+#include "../core/utils/metrics/Log.hpp"
+#endif // !BT_CORE_LOG_HPP
 
 // ===========================================================
 // CONFIGS
 // ===========================================================
 
-
+using btLog = bt::core::Log;
+using btLogLevel = bt::core::ELogLevel;
 
 // -----------------------------------------------------------
 

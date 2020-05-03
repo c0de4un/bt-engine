@@ -6,9 +6,9 @@
 * License: see LICENSE.txt
 *
 * Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
+* modification, are permitted provided that the follolinuxg conditions are met:
 * 1. Redistributions of source code must retain the above copyright notice,
-* this list of conditions and the following disclaimer.
+* this list of conditions and the follolinuxg disclaimer.
 * 2. Redistributions in binary form must display the names 'Denis Zyamaev' and
 * in the credits of the application, if such credits exist.
 * The authors of this work must be notified via email (code4un@yandex.ru) in
@@ -30,27 +30,86 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_CFG_STRING_HPP
-#define BT_CFG_STRING_HPP
-
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// Include bt::core::String
-#ifndef BT_CORE_STRING_HPP
-#include "../core/utils/text/String.hpp"
-#endif // !BT_CORE_STRING_HPP
+// HEADER
+#ifndef BT_ANDROID_MUTEX_HPP
+#include "AndroidMutex.hpp"
+#endif // !BT_ANDROID_MUTEX_HPP
 
 // ===========================================================
-// CONFIGS
+// bt::android::AndroidMutex
 // ===========================================================
 
-using btString = bt::core::bt::String;
-using btEncoding = bt::core::Encoding;
+namespace bt
+{
+
+	namespace android
+	{
+
+		// -----------------------------------------------------------
+
+		// ===========================================================
+		// CONSTRUCTOR
+		// ===========================================================
+
+		AndroidMutex::AndroidMutex()
+			: Mutex(),
+			mMutex()
+		{
+			pthread_mutex_init(&mMutex, nullptr);
+		}
+
+		// ===========================================================
+		// DESTRUCTOR
+		// ===========================================================
+
+		AndroidMutex::~AndroidMutex() BT_NOEXCEPT
+		{
+			pthread_mutex_destroy(&mMutex);
+		}
+
+		// ===========================================================
+		// bt::core::IMutex
+		// ===========================================================
+
+		void* AndroidMutex::native_handle() BT_NOEXCEPT
+		{
+			return &mMutex;
+		}
+
+		// ===========================================================
+		// METHODS
+		// ===========================================================
+
+		bool AndroidMutex::try_lock() BT_NOEXCEPT
+		{
+			if ( mLockedFlag )
+				return false;
+
+			AndroidMutex::lock();
+		}
+
+		void AndroidMutex::lock()
+		{
+			mLockedFlag = true;
+			pthread_mutex_lock(&mMutex);
+		}
+
+		void AndroidMutex::unlock() BT_NOEXCEPT
+		{
+			mLockedFlag = false;
+			pthread_mutex_unlock(&mMutex);
+		}
+
+		// -----------------------------------------------------------
+
+	} /// bt::android
+
+} /// bt
 
 // -----------------------------------------------------------
-
-#endif // !BT_CFG_STRING_HPP
