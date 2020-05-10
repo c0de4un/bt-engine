@@ -30,85 +30,48 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
+#ifndef BT_CFG_MAP_HPP
+#define BT_CFG_MAP_HPP
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef BT_WIN_MUTEX_HPP
-#include "WinMutex.hpp"
-#endif // !BT_WIN_MUTEX_HPP
+// Include bt_Engine API
+#ifndef BT_CFG_API_HPP
+#include "bt_api.hpp"
+#endif // !BT_CFG_API_HPP
 
 // ===========================================================
-// bt::win::WinMutex
+// CONFIGS
 // ===========================================================
 
-namespace bt
-{
+// PLATFORM
+#if defined( BT_ANDROID ) || defined( BT_LINUX ) || defined( BT_WINDOWS )
 
-	namespace win
-	{
+// Include C++ map
+#include <map>
 
-		// -----------------------------------------------------------
+#else
+#error "bt_map.hpp - platform not detected, configuration required."
+#endif
+// PLATFORM
 
-		// ===========================================================
-		// CONSTRUCTOR
-		// ===========================================================
+// ===========================================================
+// TYPES
+// ===========================================================
 
-		WinMutex::WinMutex()
-			: Mutex(),
-			mMutex()
-		{
-			InitializeCriticalSection(&mMutex);
-		}
+template <typename K, typename V>
+using bt_map = std::map<K, V>;
 
-		// ===========================================================
-		// DESTRUCTOR
-		// ===========================================================
+// ===========================================================
+// METHODS
+// ===========================================================
 
-		WinMutex::~WinMutex() BT_NOEXCEPT
-		{
-			DeleteCriticalSection(&mMutex);
-		}
 
-		// ===========================================================
-		// bt::core::IMutex
-		// ===========================================================
-
-		void* WinMutex::native_handle() BT_NOEXCEPT
-		{ return &mMutex; }
-
-		// ===========================================================
-		// METHODS
-		// ===========================================================
-
-		bool WinMutex::try_lock() BT_NOEXCEPT
-		{
-			if ( mLockedFlag )
-				return false;
-
-			WinMutex::lock();
-			return true;
-		}
-
-		void WinMutex::lock()
-		{
-			mLockedFlag = true;
-			EnterCriticalSection(&mMutex);
-		}
-
-		void WinMutex::unlock() BT_NOEXCEPT
-		{
-			mLockedFlag = false;
-			LeaveCriticalSection(&mMutex);
-		}
-
-		// -----------------------------------------------------------
-
-	} /// bt::win
-
-} /// bt
 
 // -----------------------------------------------------------
+
+#endif // !BT_CFG_MAP_HPP

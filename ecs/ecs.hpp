@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_ECS_COMPONENT_HPP
-#define BT_ECS_COMPONENT_HPP
+#ifndef BT_ECS_HPP
+#define BT_ECS_HPP
 
 // -----------------------------------------------------------
 
@@ -41,25 +41,23 @@
 
 // Include ecs::API
 #ifndef BT_ECS_API_HPP
-#include "../types/ecs_api.hpp"
+#include "types/ecs_api.hpp"
 #endif // !BT_ECS_API_HPP
 
-// Include ecs::numeric
-#ifndef BT_ECS_NUMERIC_HPP
-#include "../types/ecs_numeric.hpp"
-#endif // !BT_ECS_NUMERIC_HPP
+// Include ecs::memory
+#ifndef BT_ECS_MEMORY_HPP
+#include "types/ecs_memory.hpp"
+#endif // !BT_ECS_MEMORY_HPP
 
-// Include ecs::atomic
-#ifndef BT_ECS_ATOMIC_HPP
-#include "../types/ecs_atomics.hpp"
-#endif // !BT_ECS_ATOMIC_HPP
+// ===========================================================
+// FORWARD-DECLARATIONS
+// ===========================================================
+
+
 
 // ===========================================================
 // TYPES
 // ===========================================================
-
-// Enable structure-data (fields, variables) alignment (by compiler) to 1 byte
-#pragma pack( push, 1 )
 
 namespace bt
 {
@@ -71,11 +69,11 @@ namespace bt
 
 		/**
 		 * @brief
-		 * Component - data container.
+		 * ECS - ECS main class.
 		 * 
 		 * @version 0.1
 		**/
-		struct ECS_API Component
+		class ECS_API ECS
 		{
 
 			// -----------------------------------------------------------
@@ -84,34 +82,96 @@ namespace bt
 			// META
 			// ===========================================================
 
-			ECS_STRUCT
+			ECS_CLASS
+
+			// -----------------------------------------------------------
+
+		private:
+
+			// -----------------------------------------------------------
 
 			// ===========================================================
 			// FIELDS
 			// ===========================================================
 
-			/** Component-ID. **/
-			const ECSObjectID mID;
+			// ===========================================================
+			// CONSTRUCTOR
+			// ===========================================================
 
-			/** Remove flag. If true, users should't use this component. **/
-			ecs_abool_t mRemoved;
+			/**
+			 * @brief
+			 * ECS constructor.
+			 * 
+			 * @throws - no exceptions.
+			**/
+			explicit ECS() noexcept;
+
+			// ===========================================================
+			// DELETED
+			// ===========================================================
+
+			ECS(const ECS&) = delete;
+			ECS& operator=(const ECS&) = delete;
+			ECS(ECS&&) = delete;
+			ECS& operator=(ECS&&) = delete;
 
 			// -----------------------------------------------------------
 
-		};
+		public:
+
+			// -----------------------------------------------------------
+
+			// ===========================================================
+			// DESTRUCTOR
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * ECS destructor.
+			 * 
+			 * @throws - no exceptions.
+			**/
+			~ECS() noexcept;
+
+			// ===========================================================
+			// GETTERS & SETTERS
+			// ===========================================================
+
+
+
+			// ===========================================================
+			// METHODS
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * Initialize ECS.
+			 * 
+			 * @thread_safety - main thread-only.
+			 * @throws - can throw exception.
+			**/
+			static bool Initialize();
+
+			/**
+			 * @brief
+			 * Terminate ECS.
+			 * 
+			 * @thread_safety - main thread-only.
+			 * @throws - can throw exception.
+			**/
+			static void Terminate();
+
+			// -----------------------------------------------------------
+
+		}; /// bt::ecs::ECS
 
 		// -----------------------------------------------------------
 
 	} /// bt::ecs
 
 } /// bt
-
-// Restore structure-data alignment to default (8-byte on MSVC)
-#pragma pack( pop )
-
-using ecs_Component = bt::ecs::Component;
-#define BT_ECS_COMPONENT_DECL
+using ECS = bt::ecs::ECS;
 
 // -----------------------------------------------------------
 
-#endif // !BT_ECS_COMPONENT_HPP
+#endif // !BT_ECS_HPP

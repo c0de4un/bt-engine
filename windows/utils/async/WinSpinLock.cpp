@@ -73,9 +73,18 @@ namespace bt
 		// CONSTRUCTOR & DESTRUCTOR
 		// ===========================================================
 
-		WinSpinLock::WinSpinLock(btIMutex* const pMutex, const bool defferLock)
+		WinSpinLock::WinSpinLock(bt_IMutex* const pMutex, const bool defferLock)
 			: BaseLock( pMutex, defferLock )
 		{
+#ifdef BT_DEBUG // DEBUG
+			if ( !defferLock )
+			{
+				bt_assert(pMutex && "BaseLock - mutex is null !");
+			}
+#endif // DEBUG
+
+			if ( !defferLock && mMutex )
+				this->lock();
 		}
 
 		/**
@@ -86,6 +95,7 @@ namespace bt
 		**/
 		WinSpinLock::~WinSpinLock() BT_NOEXCEPT
 		{
+			this->unlock();
 		}
 
 		// ===========================================================
@@ -99,18 +109,18 @@ namespace bt
 		// bt::core::ILock
 		// ===========================================================
 
-		bool WinSpinLock::try_lock(btIMutex* const pMutex) BT_NOEXCEPT
+		bool WinSpinLock::try_lock(bt_IMutex* const pMutex) BT_NOEXCEPT
 		{
 
-#ifdef BT_DEBUG // DEBUG
-			bt_assert( (mMutex || pMutex) && "WinSpinLock::try_lock - null mutex !" );
-#endif // DEBUG
-
-			if ( mMutex )
+			if ( pMutex )
 			{
 				mMutex->unlock();
 				mMutex = pMutex;
 			}
+
+#ifdef BT_DEBUG // DEBUG
+			bt_assert( mMutex && "WinSpinLock::try_lock - null mutex !");
+#endif // DEBUG
 
 			for ( unsigned char i = 0; i < SPIN_LIMIT; i++ )
 			{
@@ -120,17 +130,18 @@ namespace bt
 			return mMutex->try_lock();
 		}
 
-		void WinSpinLock::lock(btIMutex* const pMutex)
+		void WinSpinLock::lock(bt_IMutex* const pMutex)
 		{
-#ifdef BT_DEBUG // DEBUG
-			bt_assert( ( mMutex || pMutex ) && "WinSpinLock::lock - null mutex !" );
-#endif // DEBUG
 
-			if ( mMutex )
+			if ( pMutex )
 			{
 				mMutex->unlock();
 				mMutex = pMutex;
 			}
+
+#ifdef BT_DEBUG // DEBUG
+			bt_assert(mMutex && "WinSpinLock::lock - null mutex !");
+#endif // DEBUG
 
 			for ( unsigned char i = 0; i < SPIN_LIMIT; i++ )
 			{

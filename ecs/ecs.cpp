@@ -37,77 +37,76 @@
 // ===========================================================
 
 // HEADER
-#ifndef BT_WIN_MUTEX_HPP
-#include "WinMutex.hpp"
-#endif // !BT_WIN_MUTEX_HPP
+#ifndef BT_ECS_HPP
+#include "ecs.hpp"
+#endif // !BT_ECS_HPP
+
+// Include bt::ecs::SystemsManager
+#ifndef BT_ECS_SYSTEMS_MANAGER_HPP
+#include "systems/SystemsManager.hpp"
+#endif // !BT_ECS_SYSTEMS_MANAGER_HPP
+
+// Include bt::ecs::EventsManager
+#ifndef BT_ECS_EVENTS_MANAGER_HPP
+#include "events/EventsManager.hpp"
+#endif // !BT_ECS_EVENTS_MANAGER_HPP
+
+// Include bt::ecs::EntitiesManager
+#ifndef BT_ECS_ENTITIES_MANAGER_HPP
+#include "entities/EntitiesManager.hpp"
+#endif // !BT_ECS_ENTITIES_MANAGER_HPP
+
+// Include bt::ecs::ComponentsManager
+#ifndef BT_ECS_COMPONENTS_MANAGER_HPP
+#include "components/ComponentsManager.hpp"
+#endif // !BT_ECS_COMPONENTS_MANAGER_HPP
 
 // ===========================================================
-// bt::win::WinMutex
+// bt::ecs::ECS
 // ===========================================================
 
 namespace bt
 {
 
-	namespace win
+	namespace ecs
 	{
 
 		// -----------------------------------------------------------
 
 		// ===========================================================
-		// CONSTRUCTOR
+		// CONSTRUCTOR & DESTRUCTOR
 		// ===========================================================
 
-		WinMutex::WinMutex()
-			: Mutex(),
-			mMutex()
+		ECS::ECS() noexcept
 		{
-			InitializeCriticalSection(&mMutex);
+		}
+
+		ECS::~ECS() noexcept
+		{
 		}
 
 		// ===========================================================
-		// DESTRUCTOR
+		// GETTERS & SETTERS
 		// ===========================================================
 
-		WinMutex::~WinMutex() BT_NOEXCEPT
-		{
-			DeleteCriticalSection(&mMutex);
-		}
 
-		// ===========================================================
-		// bt::core::IMutex
-		// ===========================================================
-
-		void* WinMutex::native_handle() BT_NOEXCEPT
-		{ return &mMutex; }
 
 		// ===========================================================
 		// METHODS
 		// ===========================================================
 
-		bool WinMutex::try_lock() BT_NOEXCEPT
-		{
-			if ( mLockedFlag )
-				return false;
-
-			WinMutex::lock();
+		bool ECS::Initialize()
+		{// @TODO ECS::Initialize
 			return true;
 		}
 
-		void WinMutex::lock()
-		{
-			mLockedFlag = true;
-			EnterCriticalSection(&mMutex);
-		}
-
-		void WinMutex::unlock() BT_NOEXCEPT
-		{
-			mLockedFlag = false;
-			LeaveCriticalSection(&mMutex);
+		void ECS::Terminate()
+		{// @TODO ECS::Terminate
 		}
 
 		// -----------------------------------------------------------
 
-	} /// bt::win
+	} /// bt::ecs
 
 } /// bt
 

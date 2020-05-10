@@ -39,7 +39,7 @@
 // INCLUDES
 // ===========================================================
 
-// Include btEngine.API
+// Include bt_Engine.API
 #ifndef BT_CFG_API_HPP
 #include "bt_api.hpp"
 #endif // !BT_CFG_API_HPP

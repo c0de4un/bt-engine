@@ -1,6 +1,6 @@
 # // ------------------------------------------------------------------------------
 #
-# btEngine.ECS
+# bt_Engine.ECS
 #
 # // ------------------------------------------------------------------------------
 
@@ -18,6 +18,10 @@ set ( BT_ECS_HEADERS
 	"ecs/types/ecs_vector.hpp"
 	"ecs/types/ecs_map.hpp"
 	"ecs/types/ecs_mutex.hpp"
+	"ecs/types/ecs_memory.hpp"
+	"ecs/types/ecs_map.hpp"
+	"ecs/types/ecs_deque.hpp"
+	"ecs/types/ecs_vector.hpp"
 	"ecs/types/ecs_lock.hpp"
 	# COMPONENTS
 	"ecs/components/Component.hpp"
@@ -33,7 +37,9 @@ set ( BT_ECS_HEADERS
 	# SYSTEMS
 	"ecs/systems/ISystem.hxx"
 	"ecs/systems/SystemsManager.hpp"
-	"ecs/systems/System.hpp" )
+	"ecs/systems/System.hpp"
+	# ECS
+	"ecs/ecs.hpp" )
 
 set ( BT_HEADERS ${BT_HEADERS} ${BT_ECS_HEADERS} )
 set ( BT_PUBLIC_HEADERS ${BT_PUBLIC_HEADERS} ${BT_ECS_HEADERS} )
@@ -52,7 +58,9 @@ set ( BT_ECS_SOURCES
 	"ecs/events/EventsManager.cpp"
 	# SYSTEMS
 	"ecs/systems/SystemsManager.cpp"
-	"ecs/systems/System.cpp" )
+	"ecs/systems/System.cpp"
+	# ECS
+	"ecs/ecs.cpp" )
 
 set ( BT_SOURCES ${BT_SOURCES} ${BT_ECS_SOURCES} )
 

@@ -39,7 +39,7 @@
 // INCLUDES
 // ===========================================================
 
-// Include btEngine API
+// Include bt_Engine API
 #ifndef BT_CFG_API_HPP
 #include "bt_api.hpp"
 #endif // !BT_CFG_API_HPP
@@ -101,6 +101,17 @@ namespace bt
 		// -----------------------------------------------------------
 
 		// ===========================================================
+		// GETTERS & SETTERS
+		// ===========================================================
+
+		template <typename T>
+		static T* GetRawPointer(bt_sptr<T>& pObject)
+		{
+			T& object_ref = *(pObject);
+			return &object_ref;
+		}
+
+		// ===========================================================
 		// METHODS
 		// ===========================================================
 
@@ -124,13 +135,13 @@ namespace bt
 	// -----------------------------------------------------------
 
 } /// bt
-using btMemory = bt::Memory;
+using bt_Memory = bt::Memory;
 
 // ===========================================================
 // METHODS
 // ===========================================================
 
-#define New btMemory::MakeShared
+#define New bt_Memory::MakeShared
 
 // -----------------------------------------------------------
 

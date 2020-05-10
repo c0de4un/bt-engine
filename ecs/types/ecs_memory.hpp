@@ -30,85 +30,39 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
+#ifndef BT_ECS_MEMORY_HPP
+#define BT_ECS_MEMORY_HPP
+
 // -----------------------------------------------------------
 
 // ===========================================================
 // INCLUDES
 // ===========================================================
 
-// HEADER
-#ifndef BT_WIN_MUTEX_HPP
-#include "WinMutex.hpp"
-#endif // !BT_WIN_MUTEX_HPP
+// Include bt_Engine::memory
+#ifndef BT_CFG_MEMORY_HPP
+#include "../../config/bt_memory.hpp"
+#endif // !BT_CFG_MEMORY_HPP
 
 // ===========================================================
-// bt::win::WinMutex
+// TYPES
 // ===========================================================
 
-namespace bt
-{
+template <typename T>
+using ecs_sptr = bt_sptr<T>;
 
-	namespace win
-	{
+template <typename T>
+using ecs_wptr = bt_wptr<T>;
 
-		// -----------------------------------------------------------
+template <typename T>
+using ecs_uptr = bt_uptr<T>;
 
-		// ===========================================================
-		// CONSTRUCTOR
-		// ===========================================================
+// ===========================================================
+// METHODS
+// ===========================================================
 
-		WinMutex::WinMutex()
-			: Mutex(),
-			mMutex()
-		{
-			InitializeCriticalSection(&mMutex);
-		}
-
-		// ===========================================================
-		// DESTRUCTOR
-		// ===========================================================
-
-		WinMutex::~WinMutex() BT_NOEXCEPT
-		{
-			DeleteCriticalSection(&mMutex);
-		}
-
-		// ===========================================================
-		// bt::core::IMutex
-		// ===========================================================
-
-		void* WinMutex::native_handle() BT_NOEXCEPT
-		{ return &mMutex; }
-
-		// ===========================================================
-		// METHODS
-		// ===========================================================
-
-		bool WinMutex::try_lock() BT_NOEXCEPT
-		{
-			if ( mLockedFlag )
-				return false;
-
-			WinMutex::lock();
-			return true;
-		}
-
-		void WinMutex::lock()
-		{
-			mLockedFlag = true;
-			EnterCriticalSection(&mMutex);
-		}
-
-		void WinMutex::unlock() BT_NOEXCEPT
-		{
-			mLockedFlag = false;
-			LeaveCriticalSection(&mMutex);
-		}
-
-		// -----------------------------------------------------------
-
-	} /// bt::win
-
-} /// bt
+using ecs_Memory = bt_Memory;
 
 // -----------------------------------------------------------
+
+#endif // !BT_ECS_MEMORY_HPP

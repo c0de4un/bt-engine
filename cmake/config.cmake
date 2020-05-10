@@ -1,6 +1,6 @@
 # // ------------------------------------------------------------------------------
 #
-# This is CMake-file defines config-vars for btEngine CMake-Project.
+# This is CMake-file defines config-vars for bt_Engine CMake-Project.
 #
 # // ------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ if ( NOT DEFINED PROJECT_ASSETS_DIR )
 	set ( PROJECT_ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets/" )
 endif ( NOT DEFINED PROJECT_ASSETS_DIR )
 
-# btEngine Dir.
+# bt_Engine Dir.
 if ( NOT DEFINED BT_DIR )
 	set ( BT_DIR "${PROJECT_LIBS_DIR}btengine/" )
 endif ( NOT DEFINED BT_DIR )

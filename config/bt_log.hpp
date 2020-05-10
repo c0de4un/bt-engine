@@ -48,8 +48,8 @@
 // CONFIGS
 // ===========================================================
 
-using btLog = bt::core::Log;
-using btLogLevel = bt::core::ELogLevel;
+using bt_Log = bt::core::Log;
+using bt_LogLevel = bt::core::ELogLevel;
 
 // -----------------------------------------------------------
 

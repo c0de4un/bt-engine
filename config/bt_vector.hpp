@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_WIN_SPIN_LOCK_HPP
-#define BT_WIN_SPIN_LOCK_HPP
+#ifndef BT_CFG_VECTOR_HPP
+#define BT_CFG_VECTOR_HPP
 
 // -----------------------------------------------------------
 
@@ -39,30 +39,58 @@
 // INCLUDES
 // ===========================================================
 
-// Include bt::core::WinSpinLock
-#ifndef BT_CORE_BASE_LOCK_HPP
-#include "../../../core/utils/async/BaseLock.hpp"
-#endif // !BT_CORE_BASE_LOCK_HPP
+// Include bt_Engine API
+#ifndef BT_CFG_API_HPP
+#include "bt_api.hpp"
+#endif // !BT_CFG_API_HPP
+
+// Include bt::numeric
+#ifndef BT_CFG_NUMERIC_HPP
+#include "bt_numeric.hpp"
+#endif // !BT_CFG_NUMERIC_HPP
+
+// ===========================================================
+// CONFIGS
+// ===========================================================
+
+// PLATFORM
+#if defined( BT_ANDROID ) || defined( BT_LINUX ) || defined( BT_WINDOWS )
+
+// Include C++ vector
+#include <vector>
+
+#else
+#error "bt_vector.hpp - platform not detected, configuration required."
+#endif
+// PLATFORM
 
 // ===========================================================
 // TYPES
 // ===========================================================
 
+template <typename T>
+using bt_vector_t = std::vector<T>;
+
+// ===========================================================
+// METHODS
+// ===========================================================
+
 namespace bt
 {
 
-	namespace win
+	namespace core
 	{
 
 		// -----------------------------------------------------------
 
 		/**
 		 * @brief
-		 * WinSpinLock - spin-based thread-lock for Windows API.
+		 * VectorUtil - utilities for vector containers.
 		 * 
 		 * @version 0.1
 		**/
-		class BT_API WinSpinLock final : public bt_BaseLock
+		template<typename T>
+		class BT_API VectorUtil final
 		{
 
 			// -----------------------------------------------------------
@@ -80,19 +108,21 @@ namespace bt
 			// -----------------------------------------------------------
 
 			// ===========================================================
-			// CONSTANTS
+			// CONSTRUCTOR
 			// ===========================================================
 
-			static constexpr const unsigned char SPIN_LIMIT = 2;
+			explicit VectorUtil()
+			{
+			}
 
 			// ===========================================================
 			// DELETED
 			// ===========================================================
 
-			WinSpinLock(const WinSpinLock&) = delete;
-			WinSpinLock& operator=(const WinSpinLock&) = delete;
-			WinSpinLock(WinSpinLock&&) = delete;
-			WinSpinLock& operator=(WinSpinLock&&) = delete;
+			VectorUtil(const VectorUtil&) = delete;
+			VectorUtil& operator=(const VectorUtil&) = delete;
+			VectorUtil(VectorUtil&&) = delete;
+			VectorUtil& operator=(VectorUtil&&) = delete;
 
 			// -----------------------------------------------------------
 
@@ -101,84 +131,104 @@ namespace bt
 			// -----------------------------------------------------------
 
 			// ===========================================================
-			// CONSTRUCTOR & DESTRUCTOR
+			// DESTRUCTOR
+			// ===========================================================
+
+			~VectorUtil()
+			{
+			}
+
+			// ===========================================================
+			// METHODS
 			// ===========================================================
 
 			/**
 			 * @brief
-			 * WinSpinLock constructor.
-			 *
-			 * @param pMutex - mutex to store. Automatically unlocked, not deleted (instance not managed).
-			 * @param defferLock - 'false' to lock mutex, 'true' to delay until #lock called.
-			 * @throws - no exceptions.
+			 * Search Item's index.
+			 * 
+			 * @param pItem - Item.
+			 * @param pOutput - output index.
+			 * @return - false if failed, true if found.
 			**/
-			explicit WinSpinLock(bt_IMutex* const pMutex = nullptr, const bool defferLock = false);
+			static bool Find( const T& pItem, bt_size_t *const pOutput)
+			{
+				auto itemsIterator = std::find(pVector.begin(), pVector.end(), pItem);
+
+				if ( itemsIterator != pVector.cend() ) {
+					pOutput = *itemsIterator;
+					return true;
+				} else {
+					return false;
+				}
+			}
 
 			/**
-			 * @brief
-			 * WinSpinLock destructor.
+			 * Swap & remove (erase, pop_back) the given element (item.)
 			 *
-			 * @throws - no exceptions.
+			 * @thread_safety - not thread-safe.
+			 * @param T - Type of item.
+			 * @param pVector - vector to modify.
+			 * @param pItem - item to search & remove.
 			**/
-			virtual ~WinSpinLock() BT_NOEXCEPT;
+			static void SwapPop(bt_vector_t<T>& pVector, T& pItem)
+			{
+				// Search
+				auto itemsIterator = std::find(pVector.begin(), pVector.end(), pItem);
 
-			// ===========================================================
-			// GETTERS & SETTERS
-			// ===========================================================
+				// Swap & Remove
+				if ( itemsIterator != pVector.cend() ) {
+
+					// Swap & Remove
+					if ( pVector.size() > 2 ) {
+
+						// Swap
+						std::swap(*itemsIterator, pVector.back());
+
+						// Remove
+						pVector.pop_back();
+					} else // Just Remove
+						pVector.erase(itemsIterator);
+
+
+				}// Swap & Remove
+			}
 
 			/**
-			 * @brief
-			 * Check if this lock is locked.
+			 * Swap & remove (erase, pop_back) the given element (item.)
 			 *
-			 * @thread_safety - thread-safe (atomic, not thread-lock).
-			 * @throws - no exceptions.
+			 * @thread_safety - not thread-safe.
+			 * @param T - Type of item.
+			 * @param pVector - vector to modify.
+			 * @param pIdx - item index.
 			**/
-			virtual bool isLocked() const BT_NOEXCEPT final;
+			static void SwapPopByIdx(bt_vector_t<T>& pVector, const bt_size_t pIdx)
+			{
+				const bt_size_t vectSize = pVector.size();
 
-			// ===========================================================
-			// bt::core::ILock
-			// ===========================================================
-
-			/**
-			 * @brief
-			 * Tries to lock this lock.
-			 *
-			 * @thread_safety - thread-safe (atomic, not thread-lock).
-			 * @returns - 'true' if locked, 'false' if failed.
-			 * @throws - (!) no exceptions
-			**/
-			virtual bool try_lock(bt_IMutex* const pMutex = nullptr) BT_NOEXCEPT final;
-
-			/**
-			 * @brief
-			 * Lock this lock.
-			 *
-			 * @thread_safety - thread-safe (atomic, no locks).
-			 * @throws - can throw exception (self-lock, etc).
-			**/
-			virtual void lock(bt_IMutex* const pMutex = nullptr) final;
-
-			/**
-			 * @brief
-			 * Unlock this lock.
-			 *
-			 * @thread_safety - thread-safe (atomics, no locks).
-			 * @throws - no exceptions.
-			**/
-			virtual void unlock() BT_NOEXCEPT final;
+				if ( vectSize > 2 && (vectSize - 1) > pIdx ) {
+					T a = pVector[pVector.size() - 1];
+					T b = pVector[pIdx];
+					pVector[pIdx] = a;
+					pVector[vectSize - 1] = b;
+					pVector.pop_back();
+				} else {
+					pVector.erase( pVector.begin() + pIdx );
+				}
+			}
 
 			// -----------------------------------------------------------
 
-		}; /// bt::win::WinSpinLock
+		}; /// bt::core::VectorUtil
 
 		// -----------------------------------------------------------
 
-	} /// bt::win
+	} /// bt::core
 
 } /// bt
-using btWinSpinLock = bt::win::WinSpinLock;
-#define BT_WIN_SPIN_LOCK_DECL
+
+template<typename T>
+using bt_VectorUtil = bt::core::VectorUtil<T>;
 
 // -----------------------------------------------------------
 
-#endif // !BT_WIN_SPIN_LOCK_HPP
+#endif // !BT_CFG_VECTOR_HPP

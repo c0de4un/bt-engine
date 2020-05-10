@@ -1,8 +1,8 @@
 # // ------------------------------------------------------------------------------
 #
-# This is CMake-Project for btEngine.
+# This is CMake-Project for bt_Engine.
 #
-# btEngine - cross-platform game enigne, designed to use low memory,
+# bt_Engine - cross-platform game enigne, designed to use low memory,
 # good CPU and GPU performance.
 #
 # License: see "LICENSE" file.
@@ -21,13 +21,13 @@ cmake_minimum_required ( VERSION 3.5 FATAL_ERROR ) # QT5 + CMake required 3.5 mi
 # =================================================================================
 
 # Project Name
-set ( PROJECT_NAME "btEngine" )
+set ( PROJECT_NAME "bt_Engine" )
 
 # Project Version
 set ( PROJECT_VERSION 0.1.1 )
 
 # Project Description
-set ( PROJECT_DESCRIPTION "btEngine" )
+set ( PROJECT_DESCRIPTION "bt_Engine" )
 
 # Configure Project
 project ( ${PROJECT_NAME} VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_DESCRIPTION} LANGUAGES C CXX )
@@ -76,6 +76,8 @@ set ( BT_HEADERS
 	"config/bt_output_stream.hpp"
 	"config/bt_memory.hpp"
 	"config/bt_mutex.hpp"
+	"config/bt_map.hpp"
+	"config/bt_vector.hpp"
 	"config/bt_lock.hpp"
 	"config/bt_numeric.hpp"
 	"config/bt_string.hpp"

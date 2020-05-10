@@ -45,6 +45,9 @@
 #include <iostream>
 
 // Windows API
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Windows.h>
 
 // Include C++ string

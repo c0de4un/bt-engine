@@ -27,6 +27,7 @@ if ( NOT DEFINED PLATFORM_DIR )
 		# Set Directory Prefix
 		set ( PLATFORM_DIR "windows" )
 		add_definitions ( -DBT_WINDOWS=1 )
+		add_definitions ( -DNOMINMAX )
 
 	elseif ( LINUX ) # LINUX
 	

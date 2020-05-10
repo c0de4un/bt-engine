@@ -1,6 +1,6 @@
 # // ------------------------------------------------------------------------------
 #
-# This is CMake-file with build config for btEngine.
+# This is CMake-file with build config for bt_Engine.
 #
 # // ------------------------------------------------------------------------------
 
