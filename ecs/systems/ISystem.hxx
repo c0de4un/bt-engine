@@ -44,6 +44,11 @@
 #include "../types/ecs_api.hpp"
 #endif // !BT_ECS_API_HPP
 
+// Include ecs::numeric
+#ifndef BT_ECS_NUMERIC_HPP
+#include "../types/ecs_numeric.hpp"
+#endif // !BT_ECS_NUMERIC_HPP
+
 // ===========================================================
 // TYPES
 // ===========================================================
@@ -98,6 +103,42 @@ namespace bt
 			// GETTERS & SETTERS
 			// ===========================================================
 
+			/**
+			 * @brief
+			 * Returns System Type-ID.
+			 * 
+			 * @thread_safety - not required.
+			 * @throws - no exceptions.
+			**/
+			virtual ECSTypeID getTypeID() const noexcept = 0;
+
+			/**
+			 * @brief
+			 * Returns System ID.
+			 *
+			 * @thread_safety - not required.
+			 * @throws - no exceptions.
+			**/
+			virtual ECSObjectID getID() const noexcept = 0;
+
+			/**
+			 * @brief
+			 * Returns 'true' if paused.
+			 * 
+			 * @thread_safety - atomic used.
+			 * @throws - no exceptions.
+			**/
+			virtual bool isPaused() const noexcept = 0;
+
+			/**
+			 * @brief
+			 * Returns 'true' if System started.
+			 *
+			 * @thread_safety - atomic used.
+			 * @throws - no exceptions.
+			**/
+			virtual bool isStarted() const noexcept = 0;
+
 			// ===========================================================
 			// METHODS
 			// ===========================================================
@@ -110,7 +151,7 @@ namespace bt
 			 * @return - 'true' if OK, 'false' if error.
 			 * @throws - can throw exception.
 			**/
-			virtual bool StartSystem() = 0;
+			virtual bool Start() = 0;
 
 			/**
 			 * @brief
@@ -119,7 +160,7 @@ namespace bt
 			 * @thread_safety - thread-locks used.
 			 * @throws - can throw exception.
 			**/
-			virtual void PauseSystem() = 0;
+			virtual void Pause() = 0;
 
 			/**
 			 * @brief
@@ -129,7 +170,7 @@ namespace bt
 			 * @thread_safety - thread-locks used.
 			 * @throws - no exceptions.
 			**/
-			virtual void StopSystem() = 0;
+			virtual void Stop() = 0;
 
 			// -----------------------------------------------------------
 
@@ -140,6 +181,7 @@ namespace bt
 	} /// bt::ecs
 
 } /// bt
+
 using ecs_ISystem = bt::ecs::ISystem;
 #define BT_ECS_I_SYSTEM_DECL
 

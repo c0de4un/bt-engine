@@ -38,6 +38,9 @@ set ( BT_ECS_HEADERS
 	"ecs/systems/ISystem.hxx"
 	"ecs/systems/SystemsManager.hpp"
 	"ecs/systems/System.hpp"
+	# UTILS
+	"ecs/utils/IDStorage.hpp"
+	"ecs/utils/IDMap.hpp"
 	# ECS
 	"ecs/ecs.hpp" )
 
@@ -49,6 +52,8 @@ set ( BT_PUBLIC_HEADERS ${BT_PUBLIC_HEADERS} ${BT_ECS_HEADERS} )
 # =================================================================================
 
 set ( BT_ECS_SOURCES
+	# COMPONENTS
+	"ecs/components/Component.cpp"
 	"ecs/components/ComponentsManager.cpp"
 	# ENTITIES
 	"ecs/entities/Entity.cpp"

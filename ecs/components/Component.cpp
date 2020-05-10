@@ -37,32 +37,17 @@
 // ===========================================================
 
 // HEADER
-#ifndef BT_ECS_HPP
-#include "ecs.hpp"
-#endif // !BT_ECS_HPP
+#ifndef BT_ECS_COMPONENT_HPP
+#include "Component.hpp"
+#endif // !BT_ECS_COMPONENT_HPP
 
-// Include bt::ecs::SystemsManager
-#ifndef BT_ECS_SYSTEMS_MANAGER_HPP
-#include "systems/SystemsManager.hpp"
-#endif // !BT_ECS_SYSTEMS_MANAGER_HPP
-
-// Include bt::ecs::EventsManager
-#ifndef BT_ECS_EVENTS_MANAGER_HPP
-#include "events/EventsManager.hpp"
-#endif // !BT_ECS_EVENTS_MANAGER_HPP
-
-// Include bt::ecs::EntitiesManager
-#ifndef BT_ECS_ENTITIES_MANAGER_HPP
-#include "entities/EntitiesManager.hpp"
-#endif // !BT_ECS_ENTITIES_MANAGER_HPP
-
-// Include bt::ecs::ComponentsManager
+// Include ecs::ComponentsManager
 #ifndef BT_ECS_COMPONENTS_MANAGER_HPP
-#include "components/ComponentsManager.hpp"
+#include "ComponentsManager.hpp"
 #endif // !BT_ECS_COMPONENTS_MANAGER_HPP
 
 // ===========================================================
-// bt::ecs::ECS
+// ecs::Component
 // ===========================================================
 
 namespace bt
@@ -77,34 +62,21 @@ namespace bt
 		// CONSTRUCTOR & DESTRUCTOR
 		// ===========================================================
 
-		ECS::ECS() noexcept
+		Component::Component(const ECSTypeID pType, const bool pAsync) ECS_NOEXCEPT
+			: mID( ecs_ComponentsManager::generateComponentID(pType) ),
+			mRemoved( false ),
+			mMutex( pAsync ? new ecs_mutex_t() : nullptr )
 		{
 		}
 
-		ECS::~ECS() noexcept
+		Component::~Component() ECS_NOEXCEPT
 		{
+			ecs_ComponentsManager::releaseComponentID( getTypeID(), mID );
+			delete mMutex;
 		}
 
-		// ===========================================================
-		// GETTERS & SETTERS
-		// ===========================================================
-
-
-
-		// ===========================================================
-		// METHODS
-		// ===========================================================
-
-		bool ECS::Initialize()
-		{
-			ecs_ComponentsManager::Initialize();
-			return true;
-		}
-
-		void ECS::Terminate()
-		{
-			ecs_ComponentsManager::Terminate();
-		}
+		ECSTypeID Component::getTypeID() const noexcept
+		{ return ECS_INVALID_TYPE_ID; }
 
 		// -----------------------------------------------------------
 

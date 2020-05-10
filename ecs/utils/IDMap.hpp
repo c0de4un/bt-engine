@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_ECS_COMPONENT_HPP
-#define BT_ECS_COMPONENT_HPP
+#ifndef ECS_ID_MAP_HPP
+#define ECS_ID_MAP_HPP
 
 // -----------------------------------------------------------
 
@@ -39,32 +39,14 @@
 // INCLUDES
 // ===========================================================
 
-// Include ecs::API
-#ifndef BT_ECS_API_HPP
-#include "../types/ecs_api.hpp"
-#endif // !BT_ECS_API_HPP
-
-// Include ecs::numeric
-#ifndef BT_ECS_NUMERIC_HPP
-#include "../types/ecs_numeric.hpp"
-#endif // !BT_ECS_NUMERIC_HPP
-
-// Include ecs::atomic
-#ifndef BT_ECS_ATOMIC_HPP
-#include "../types/ecs_atomics.hpp"
-#endif // !BT_ECS_ATOMIC_HPP
-
-// Include ecs::mutex
-#ifndef BT_ECS_MUTEX_HPP
-#include "../types/ecs_mutex.hpp"
-#endif // !BT_ECS_MUTEX_HPP
+// Include ecs::IDStorage
+#ifndef ECS_ID_STORAGE_HPP
+#include "IDStorage.hpp"
+#endif // !ECS_ID_STORAGE_HPP
 
 // ===========================================================
 // TYPES
 // ===========================================================
-
-// Enable structure-data (fields, variables) alignment (by compiler) to 1 byte
-#pragma pack( push, 1 )
 
 namespace bt
 {
@@ -76,11 +58,12 @@ namespace bt
 
 		/**
 		 * @brief
-		 * Component - data container.
-		 * 
+		 * IDMap - ID managing storage with type-sorted IDs.
+		 *
 		 * @version 0.1
 		**/
-		struct ECS_API Component
+		template <typename K = unsigned int, typename V = unsigned long>
+		class ECS_API IDMap final
 		{
 
 			// -----------------------------------------------------------
@@ -89,42 +72,23 @@ namespace bt
 			// META
 			// ===========================================================
 
-			ECS_STRUCT
+			ECS_CLASS
+
+			// -----------------------------------------------------------
+
+		private:
+
+			// -----------------------------------------------------------
 
 			// ===========================================================
 			// FIELDS
 			// ===========================================================
 
-			/** Component-ID. **/
-			const ECSObjectID mID;
-
-			/** Remove flag. If true, users should't use this component. **/
-			ecs_abool_t mRemoved;
-
 			/** Mutex. **/
-			ecs_mutex_t* const mMutex;
+			ecs_mutex_t mMutex;
 
-			// ===========================================================
-			// CONSTRUCTOR & DESTRUCTOR
-			// ===========================================================
-
-			/**
-			 * @brief
-			 * Component constructor.
-			 * 
-			 * @param pType - Type-ID.
-			 * @param pAsync - 'true' to create mutex.
-			 * @throws - no exceptions.
-			**/
-			explicit Component(const ECSTypeID pType, const bool pAsync) ECS_NOEXCEPT;
-
-			/**
-			 * @brief
-			 * Component destructor.
-			 * 
-			 * @throws - no exceptions.
-			**/
-			virtual ~Component() ECS_NOEXCEPT;
+			/** ID Containers. **/
+			ecs_map<K, ecs_IDStorage<V>> mIDs;
 
 			// ===========================================================
 			// GETTERS & SETTERS
@@ -132,16 +96,107 @@ namespace bt
 
 			/**
 			 * @brief
-			 * Returns Type-ID.
+			 * Returns IDs container.
 			 * 
-			 * @thread_safety - not required.
-			 * @throws - no exceptions.
+			 * @thread_safety - thread-lock used.
+			 * @throws - can throw exception.
 			**/
-			virtual ECSTypeID getTypeID() const noexcept;
+			ecs_IDStorage<V>& getIDList(const K pKey)
+			{
+				ecs_lock lock(&mMutex);
+
+				auto pos = mIDs.find(pKey);
+
+				if ( pos != mIDs.cend() )
+				{
+					ecs_IDStorage<V>& ids = pos->second;
+					return ids;
+				}
+
+				return mIDs[pKey];
+			}
+
+			// ===========================================================
+			// DELETED
+			// ===========================================================
+
+			IDMap(const IDMap&) = delete;
+			IDMap& operator=(const IDMap&) = delete;
+			IDMap(IDMap&&) = delete;
+			IDMap& operator=(IDMap&&) = delete;
 
 			// -----------------------------------------------------------
 
-		};
+		public:
+
+			// -----------------------------------------------------------
+
+			// ===========================================================
+			// CONSTRUCTOR & DESTRUCTOR
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * IDMap constructor.
+			 * 
+			 * @throws - can throw exception.
+			**/
+			explicit IDMap()
+				: mMutex(),
+				mIDs()
+			{
+			}
+
+			/**
+			 * @brief
+			 * IDMap destructor.
+			 * 
+			 * @throws - can throw exception.
+			**/
+			~IDMap()
+			{
+			}
+
+			// ===========================================================
+			// GETTERS & SETTERS
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * Returns available ID.
+			 * 
+			 * @thread_safety - thread-lock used.
+			 * @param pType - ID Type.
+			 * @throws - can throw exception.
+			**/
+			V getAvailableID( const K pType )
+			{
+				ecs_IDStorage<V>& ids = getIDList(pType);
+				return ids.getAvailable();
+			}
+
+			// ===========================================================
+			// METHODS
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * Returns available ID for reusage.
+			 *
+			 * @thread_safety - thread-lock used.
+			 * @param pType - ID Type.
+			 * @param pID - ID to return.
+			 * @throws - can throw exception.
+			**/
+			void releaseID( const K pType, const V pID )
+			{
+				ecs_IDStorage<V>& ids = getIDList(pType);
+				ids.release(pID);
+			}
+
+			// -----------------------------------------------------------
+
+		}; /// bt::ecs::IDMap
 
 		// -----------------------------------------------------------
 
@@ -149,12 +204,10 @@ namespace bt
 
 } /// bt
 
-// Restore structure-data alignment to default (8-byte on MSVC)
-#pragma pack( pop )
-
-using ecs_Component = bt::ecs::Component;
-#define BT_ECS_COMPONENT_DECL
+template <typename K, typename V>
+using ecs_IDMap = bt::ecs::IDMap<K, V>;
+#define ECS_ID_MAP_DECL
 
 // -----------------------------------------------------------
 
-#endif // !BT_ECS_COMPONENT_HPP
+#endif // !ECS_ID_MAP_HPP

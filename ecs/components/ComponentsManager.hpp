@@ -74,6 +74,11 @@
 #include "../../core/utils/containers/IMapIterator.hxx"
 #endif // !BT_CORE_I_MAP_ITERATOR_HXX
 
+// Include ecs::IDMap
+#ifndef ECS_ID_MAP_HPP
+#include "../utils/IDMap.hpp"
+#endif // !ECS_ID_MAP_HPP
+
 // ===========================================================
 // FORWARD-DECLARATIONS
 // ===========================================================
@@ -144,10 +149,13 @@ namespace bt
 			static ecs_sptr<ComponentsManager> mInstance;
 
 			/** Instance Mutex. **/
-			static bt_ecs_mutex_t mInstanceMutex;
+			static ecs_mutex_t mInstanceMutex;
 
 			/** Components map. **/
 			ecs_comps_types_map mTypedComponents;
+
+			/** IDStorage **/
+			ecs_IDMap<ECSTypeID, ECSObjectID> mIDStorage;
 
 			// ===========================================================
 			// CONSTRUCTOR
@@ -295,6 +303,27 @@ namespace bt
 			 * @throws - no exceptions.
 			**/
 			static ECS_API void removeComponent(const ECSTypeID pType, ecs_comp_ptr& pComponent) ECS_NOEXCEPT;
+
+			/**
+			 * @brief
+			 * Returns Component ID.
+			 *
+			 * @thread_safety - thread-lock used.
+			 * @param pType - Type-ID.
+			 * @throws - can throw exception.
+			**/
+			static ECSObjectID generateComponentID(const ECSTypeID pType) ECS_NOEXCEPT;
+
+			/**
+			 * @brief
+			 * Returns Component ID for reusage.
+			 *
+			 * @thread_safety - thread-lock used.
+			 * @param pType - Type-ID.
+			 * @param pID - ID to return for reusage.
+			 * @throws - can throw exception.
+			**/
+			static void releaseComponentID(const ECSTypeID pType, const ECSObjectID pID) ECS_NOEXCEPT;
 
 			/**
 			 * @brief

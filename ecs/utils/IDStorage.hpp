@@ -30,8 +30,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef BT_ECS_COMPONENT_HPP
-#define BT_ECS_COMPONENT_HPP
+#ifndef ECS_ID_STORAGE_HPP
+#define ECS_ID_STORAGE_HPP
 
 // -----------------------------------------------------------
 
@@ -44,27 +44,24 @@
 #include "../types/ecs_api.hpp"
 #endif // !BT_ECS_API_HPP
 
-// Include ecs::numeric
-#ifndef BT_ECS_NUMERIC_HPP
-#include "../types/ecs_numeric.hpp"
-#endif // !BT_ECS_NUMERIC_HPP
-
-// Include ecs::atomic
-#ifndef BT_ECS_ATOMIC_HPP
-#include "../types/ecs_atomics.hpp"
-#endif // !BT_ECS_ATOMIC_HPP
-
 // Include ecs::mutex
 #ifndef BT_ECS_MUTEX_HPP
 #include "../types/ecs_mutex.hpp"
 #endif // !BT_ECS_MUTEX_HPP
 
+// Include ecs::lock
+#ifndef BT_ECS_LOCK_HPP
+#include "../types/ecs_lock.hpp"
+#endif // !BT_ECS_LOCK_HPP
+
+// Include ecs::map
+#ifndef BT_ECS_MAP_HPP
+#include "../types/ecs_mutex.hpp"
+#endif // !BT_ECS_MAP_HPP
+
 // ===========================================================
 // TYPES
 // ===========================================================
-
-// Enable structure-data (fields, variables) alignment (by compiler) to 1 byte
-#pragma pack( push, 1 )
 
 namespace bt
 {
@@ -76,11 +73,13 @@ namespace bt
 
 		/**
 		 * @brief
-		 * Component - data container.
+		 * IDStorage - template storage utility-class (pool) for IDs (numeric values).
+		 * Useful to replace same code, when generation of the unique IDs required (Entities, Meshes, etc).
 		 * 
 		 * @version 0.1
 		**/
-		struct ECS_API Component
+		template <typename T>
+		class ECS_API IDStorage final
 		{
 
 			// -----------------------------------------------------------
@@ -89,20 +88,38 @@ namespace bt
 			// META
 			// ===========================================================
 
-			ECS_STRUCT
+			ECS_CLASS
+
+			// -----------------------------------------------------------
+
+		private:
+
+			// -----------------------------------------------------------
 
 			// ===========================================================
 			// FIELDS
 			// ===========================================================
 
-			/** Component-ID. **/
-			const ECSObjectID mID;
-
-			/** Remove flag. If true, users should't use this component. **/
-			ecs_abool_t mRemoved;
+			/** Available IDs **/
+			ecs_map<T, bool> mIDs;
 
 			/** Mutex. **/
-			ecs_mutex_t* const mMutex;
+			ecs_mutex_t mMutex;
+
+			// ===========================================================
+			// DELETED
+			// ===========================================================
+
+			IDStorage(const IDStorage&) = delete;
+			IDStorage& operator=(const IDStorage&) = delete;
+			IDStorage(IDStorage&&) = delete;
+			IDStorage& operator=(IDStorage&&) = delete;
+
+			// -----------------------------------------------------------
+
+		public:
+
+			// -----------------------------------------------------------
 
 			// ===========================================================
 			// CONSTRUCTOR & DESTRUCTOR
@@ -110,21 +127,25 @@ namespace bt
 
 			/**
 			 * @brief
-			 * Component constructor.
+			 * IDStorage constructor.
 			 * 
-			 * @param pType - Type-ID.
-			 * @param pAsync - 'true' to create mutex.
-			 * @throws - no exceptions.
+			 * @throws - can throw exception.
 			**/
-			explicit Component(const ECSTypeID pType, const bool pAsync) ECS_NOEXCEPT;
+			explicit IDStorage()
+				: mIDs(),
+				mMutex()
+			{
+			}
 
 			/**
 			 * @brief
-			 * Component destructor.
-			 * 
-			 * @throws - no exceptions.
+			 * IDStorage destructor.
+			 *
+			 * @throws - can throw exception.
 			**/
-			virtual ~Component() ECS_NOEXCEPT;
+			~IDStorage()
+			{
+			}
 
 			// ===========================================================
 			// GETTERS & SETTERS
@@ -132,16 +153,53 @@ namespace bt
 
 			/**
 			 * @brief
-			 * Returns Type-ID.
+			 * Returns available ID.
 			 * 
-			 * @thread_safety - not required.
-			 * @throws - no exceptions.
+			 * @thread_safety - thread-lock used.
+			 * @throws - can throw exception.
 			**/
-			virtual ECSTypeID getTypeID() const noexcept;
+			T getAvailable()
+			{
+				ecs_lock lock( &mMutex );
+
+				auto pos = mIDs.begin();
+				auto end = mIDs.cend();
+
+				while( pos != end )
+				{
+					if (!pos->second)
+					{
+						pos->second = true;
+						return pos->first;
+					}
+					pos++;
+				}
+
+				const T newId = (T)mIDs.size() + 1;
+				mIDs[(size_t)newId] = true;
+				return newId;
+			}
+
+			// ===========================================================
+			// METHODS
+			// ===========================================================
+
+			/**
+			 * @brief
+			 * Returns ID for reusage.
+			 *
+			 * @thread_safety - thread-lock used.
+			 * @throws - can throw exception.
+			**/
+			void release( T pID )
+			{
+				ecs_lock lock(&mMutex);
+				mIDs[pID] = false;
+			}
 
 			// -----------------------------------------------------------
 
-		};
+		}; /// bt::ecs::IDStorage
 
 		// -----------------------------------------------------------
 
@@ -149,12 +207,10 @@ namespace bt
 
 } /// bt
 
-// Restore structure-data alignment to default (8-byte on MSVC)
-#pragma pack( pop )
-
-using ecs_Component = bt::ecs::Component;
-#define BT_ECS_COMPONENT_DECL
+template <typename T>
+using ecs_IDStorage = bt::ecs::IDStorage<T>;
+#define ECS_ID_STORAGE_DECL
 
 // -----------------------------------------------------------
 
-#endif // !BT_ECS_COMPONENT_HPP
+#endif // !ECS_ID_STORAGE_HPP

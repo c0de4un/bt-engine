@@ -69,14 +69,15 @@ namespace bt
 
 		ecs_sptr<ComponentsManager> ComponentsManager::mInstance(nullptr);
 
-		bt_ecs_mutex_t ComponentsManager::mInstanceMutex;
+		ecs_mutex_t ComponentsManager::mInstanceMutex;
 
 		// ===========================================================
 		// CONSTRUCTOR & DESTRUCTOR
 		// ===========================================================
 
 		ComponentsManager::ComponentsManager()
-			: mTypedComponents()
+			: mTypedComponents(),
+			mIDStorage()
 		{
 		}
 
@@ -195,6 +196,20 @@ namespace bt
 
 			if ( objectsMap != nullptr )
 				objectsMap->Erase(pComponent->mID);
+		}
+
+		ECSObjectID ComponentsManager::generateComponentID(const ECSTypeID pType) ECS_NOEXCEPT
+		{
+			ecs_sptr<ComponentsManager> componentsManager = getInstance();
+			return componentsManager != nullptr ? componentsManager->mIDStorage.getAvailableID(pType) : ECS_INVALID_OBJECT_ID;
+		}
+
+		void ComponentsManager::releaseComponentID(const ECSTypeID pType, const ECSObjectID pID) ECS_NOEXCEPT
+		{
+			ecs_sptr<ComponentsManager> componentsManager = getInstance();
+
+			if ( componentsManager != nullptr )
+				componentsManager->mIDStorage.releaseID(pType, pID);
 		}
 
 		void ComponentsManager::Initialize()
